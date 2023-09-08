@@ -14,13 +14,16 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1.3
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Update TLDs
-        run: dart run ./bin/update.dart
+        run: flutter run ./bin/update.dart
 
       - name: Format All
-        run: dart format .
+        run: flutter format .
+
+      - name: run test
+        run: flutter test
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
