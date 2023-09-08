@@ -19,7 +19,7 @@ void main() {
 
     final body = response.body;
 
-    bool _isPunycode(String domain) {
+    bool isPunycode(String domain) {
       return domain.startsWith('xn--');
     }
 
@@ -28,7 +28,7 @@ void main() {
         .sublist(1)
         .map((item) => item.toLowerCase())
         .map((item) =>
-            _isPunycode(item) ? punycodeDecode(item.substring(4)) : item)
+            isPunycode(item) ? punycodeDecode(item.substring(4)) : item)
         .where((element) => element.isNotEmpty)
         .toList()
       ..sort();
