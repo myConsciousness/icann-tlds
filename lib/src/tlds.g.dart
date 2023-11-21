@@ -1249,7 +1249,6 @@ const tlds = <String>[
   'vlaanderen',
   'vn',
   'vodka',
-  'volkswagen',
   'volvo',
   'vote',
   'voting',
