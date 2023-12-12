@@ -1029,7 +1029,6 @@ const tlds = <String>[
   'sbi',
   'sbs',
   'sc',
-  'sca',
   'scb',
   'schaeffler',
   'schmidt',
