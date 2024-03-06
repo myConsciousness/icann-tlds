@@ -523,7 +523,6 @@ const tlds = <String>[
   'gs',
   'gt',
   'gu',
-  'guardian',
   'gucci',
   'guge',
   'guide',
