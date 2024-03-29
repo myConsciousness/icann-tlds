@@ -98,7 +98,6 @@ const tlds = <String>[
   'author',
   'auto',
   'autos',
-  'avianca',
   'aw',
   'aws',
   'ax',
