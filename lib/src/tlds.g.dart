@@ -1,7 +1,3 @@
-// Copyright 2023 Shinya Kato. All rights reserved.
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided the conditions.
-
 // coverage:ignore-file
 // ignore_for_file: type=lint
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -310,7 +306,6 @@ const tlds = <String>[
   'cymru',
   'cyou',
   'cz',
-  'dabur',
   'dad',
   'dance',
   'data',
@@ -815,7 +810,6 @@ const tlds = <String>[
   'nab',
   'nagoya',
   'name',
-  'natura',
   'navy',
   'nba',
   'nc',
@@ -1052,7 +1046,6 @@ const tlds = <String>[
   'sh',
   'shangrila',
   'sharp',
-  'shaw',
   'shell',
   'shia',
   'shiksha',

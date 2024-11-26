@@ -1,7 +1,3 @@
-// Copyright 2023 Shinya Kato. All rights reserved.
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided the conditions.
-
 import 'package:http/http.dart';
 import 'package:punycode/punycode.dart';
 import 'dart:io';
@@ -28,11 +24,7 @@ Future<void> main() async {
 
   final file = File('./lib/src/tlds.g.dart');
 
-  file.writeAsStringSync('''// Copyright 2023 Shinya Kato. All rights reserved.
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided the conditions.
-
-// coverage:ignore-file
+  file.writeAsStringSync('''// coverage:ignore-file
 // ignore_for_file: type=lint
 // GENERATED CODE - DO NOT MODIFY BY HAND
 

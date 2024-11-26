@@ -1,10 +1,8 @@
 name: icann_tlds
-description: A list of TLDs from ICANN fot Dart and Flutter application.
-version: 1.0.0
+description: A list of TLDs from ICANN for Dart and Flutter application.
+version: 1.0.1
 repository: https://github.com/myConsciousness/icann-tlds
 issue_tracker: https://github.com/myConsciousness/icann-tlds/issues
-funding:
-  - https://github.com/sponsors/myConsciousness
 
 environment:
   sdk: ^3.0.0
