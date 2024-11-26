@@ -18,7 +18,7 @@ jobs:
         run: dart pub get
 
       - name: Update TLDs
-        run: dart run ./bin/update.dart
+        run: dart run ./scripts/update.dart
 
       - name: Format All
         run: dart format .
