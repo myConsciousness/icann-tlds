@@ -3,7 +3,7 @@ description: >-
   Automatically updated list of all official Top-Level Domains (TLDs) from ICANN.
   Includes domain validation, email validation, and utility functions for TLD filtering.
   Zero dependencies, daily auto-updates, supports internationalized domains (IDNs).
-version: 1.2.0
+version: 1.2.1
 repository: https://github.com/myConsciousness/icann-tlds
 issue_tracker: https://github.com/myConsciousness/icann-tlds/issues
 homepage: https://github.com/myConsciousness/icann-tlds
