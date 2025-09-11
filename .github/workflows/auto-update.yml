@@ -8,6 +8,9 @@ on:
 jobs:
   update-and-publish:
     runs-on: ubuntu-latest
+    outputs:
+      changes: ${{ steps.check_changes.outputs.changes }}
+      new_version: ${{ steps.bump_version.outputs.new_version }}
     permissions:
       contents: write
     
@@ -90,7 +93,7 @@ jobs:
         git tag v${{ steps.bump_version.outputs.new_version }}
         git push origin main
         git push origin v${{ steps.bump_version.outputs.new_version }}
-        
+
     - name: Create Release
       if: steps.check_changes.outputs.changes == 'true'
       uses: softprops/action-gh-release@v1
@@ -104,3 +107,10 @@ jobs:
           This release was automatically generated.
         draft: false
         prerelease: false
+
+  publish:
+    needs: update-and-publish
+    if: needs.update-and-publish.outputs.changes == 'true'
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
