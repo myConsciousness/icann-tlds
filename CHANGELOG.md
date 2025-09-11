@@ -1,3 +1,7 @@
+## [1.1.1] - 2025-09-11
+
+- Updated TLDs list from ICANN
+
 # Release Note
 
 ## v1.0.1
