@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write # Required for pub.dev publishing
     
     steps:
     - name: Checkout repository
@@ -105,7 +104,3 @@ jobs:
           This release was automatically generated.
         draft: false
         prerelease: false
-        
-    - name: Publish to pub.dev
-      if: steps.check_changes.outputs.changes == 'true'
-      run: dart pub publish --force
