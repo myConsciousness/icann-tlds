@@ -4,58 +4,9 @@ on:
   push:
     tags:
       - 'v[0-9]+\.[0-9]+\.[0-9]+'
-  workflow_run:
-    workflows: ["Auto Update TLDs and Publish"]
-    types:
-      - completed
-    branches:
-      - main
 
 jobs:
-  check-and-publish:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
-    outputs:
-      should-publish: ${{ steps.check-tag.outputs.should-publish }}
-      
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Check if tag exists and was created recently
-        id: check-tag
-        run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            # Direct tag push - always publish
-            echo "should-publish=true" >> $GITHUB_OUTPUT
-            echo "Tag pushed directly, will publish"
-          else
-            # Check if a new tag was created in the last workflow run
-            latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [ -n "$latest_tag" ]; then
-              # Check if tag was created in the last 5 minutes (workflow run time)
-              tag_time=$(git log -1 --format=%ct "$latest_tag" 2>/dev/null || echo "0")
-              current_time=$(date +%s)
-              time_diff=$((current_time - tag_time))
-              
-              if [ $time_diff -lt 600 ]; then  # 10 minutes
-                echo "should-publish=true" >> $GITHUB_OUTPUT
-                echo "Recent tag found: $latest_tag, will publish"
-              else
-                echo "should-publish=false" >> $GITHUB_OUTPUT
-                echo "No recent tag found, skipping publish"
-              fi
-            else
-              echo "should-publish=false" >> $GITHUB_OUTPUT
-              echo "No tags found, skipping publish"
-            fi
-          fi
-
   publish:
-    needs: check-and-publish
-    if: needs.check-and-publish.outputs.should-publish == 'true'
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
