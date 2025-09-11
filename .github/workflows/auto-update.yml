@@ -88,12 +88,10 @@ jobs:
         
     - name: Create Release
       if: steps.check_changes.outputs.changes == 'true'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ steps.bump_version.outputs.new_version }}
-        release_name: Release v${{ steps.bump_version.outputs.new_version }}
+        name: Release v${{ steps.bump_version.outputs.new_version }}
         body: |
           ## Changes
           - Updated TLDs list from ICANN
@@ -101,9 +99,3 @@ jobs:
           This release was automatically generated.
         draft: false
         prerelease: false
-        
-    - name: Create and push tag
-      if: steps.check_changes.outputs.changes == 'true'
-      run: |
-        git tag v${{ steps.bump_version.outputs.new_version }}
-        git push origin v${{ steps.bump_version.outputs.new_version }}
