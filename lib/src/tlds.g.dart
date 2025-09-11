@@ -8,19 +8,6 @@
 
 /// A constant list of TLDs from ICANN.
 const tlds = <String>[
-  'aaa',
-  'aarp',
-  'abb',
-  'abbott',
-  'abbvie',
-  'abc',
-  'able',
-  'abogado',
-  'abudhabi',
-  'ac',
-  'academy',
-  'accenture',
-  'accountant',
   'accountants',
   'aco',
   'actor',
