@@ -8,8 +8,6 @@
 
 /// A constant list of TLDs from ICANN.
 const tlds = <String>[
-  'ac',
-  'academy',
   'accenture',
   'accountant',
   'accountants',
