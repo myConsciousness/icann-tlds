@@ -1,116 +1,114 @@
-name: Auto Update TLDs and Publish
+name: Auto Update TLDs
 
 on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
 
+# Note: pushing the version tag triggers `publish.yml`, which publishes to
+# pub.dev. For that trigger to fire, checkout must use a Personal Access Token
+# (PAT_TOKEN) — tags pushed with the default GITHUB_TOKEN do NOT start other
+# workflows. Configure a repo secret named PAT_TOKEN with `repo` + `workflow`
+# scope. Without it, the tag is created but pub.dev publishing won't run.
+
 jobs:
-  update-and-publish:
+  update:
     runs-on: ubuntu-latest
-    outputs:
-      changes: ${{ steps.check_changes.outputs.changes }}
-      new_version: ${{ steps.bump_version.outputs.new_version }}
     permissions:
       contents: write
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
-        
-    - name: Setup Dart SDK
-      uses: dart-lang/setup-dart@v1
-      with:
-        sdk: stable
-        
-    - name: Get dependencies
-      run: dart pub get
-      
-    - name: Store current TLDs file
-      run: cp lib/src/tlds.g.dart lib/src/tlds.g.dart.backup
-      
-    - name: Update TLDs
-      run: dart run scripts/update.dart
-      
-    - name: Check for changes
-      id: check_changes
-      run: |
-        if ! cmp -s lib/src/tlds.g.dart lib/src/tlds.g.dart.backup; then
-          echo "changes=true" >> $GITHUB_OUTPUT
-          echo "TLDs have been updated"
-        else
-          echo "changes=false" >> $GITHUB_OUTPUT
-          echo "No changes in TLDs"
-        fi
-        
-    - name: Bump version
-      if: steps.check_changes.outputs.changes == 'true'
-      id: bump_version
-      run: |
-        current_version=$(grep '^version:' pubspec.yaml | sed 's/version: //')
-        echo "Current version: $current_version"
-        
-        IFS='.' read -ra VERSION_PARTS <<< "$current_version"
-        major=${VERSION_PARTS[0]}
-        minor=${VERSION_PARTS[1]}
-        patch=${VERSION_PARTS[2]}
-        new_patch=$((patch + 1))
-        new_version="$major.$minor.$new_patch"
-        
-        echo "New version: $new_version"
-        echo "new_version=$new_version" >> $GITHUB_OUTPUT
-        
-        sed -i "s/^version: .*/version: $new_version/" pubspec.yaml
-        
-    - name: Update CHANGELOG
-      if: steps.check_changes.outputs.changes == 'true'
-      run: |
-        new_version=${{ steps.bump_version.outputs.new_version }}
-        current_date=$(date '+%Y-%m-%d')
-        
-        temp_file=$(mktemp)
-        echo "## [$new_version] - $current_date" > "$temp_file"
-        echo "" >> "$temp_file"
-        echo "- Updated TLDs list from ICANN" >> "$temp_file"
-        echo "" >> "$temp_file"
-        cat CHANGELOG.md >> "$temp_file"
-        mv "$temp_file" CHANGELOG.md
-        
-    - name: Run tests
-      if: steps.check_changes.outputs.changes == 'true'
-      run: dart test
-      
-    - name: Create and push tag
-      if: steps.check_changes.outputs.changes == 'true'
-      run: |
-        git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-        git config --local user.name "${{ github.actor }}"
-        git add .
-        git commit -m "chore: update TLDs list to v${{ steps.bump_version.outputs.new_version }}"
-        git tag v${{ steps.bump_version.outputs.new_version }}
-        git push origin main
-        git push origin v${{ steps.bump_version.outputs.new_version }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-    - name: Create Release
-      if: steps.check_changes.outputs.changes == 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ steps.bump_version.outputs.new_version }}
-        name: Release v${{ steps.bump_version.outputs.new_version }}
-        body: |
-          ## Changes
-          - Updated TLDs list from ICANN
-          
-          This release was automatically generated.
-        draft: false
-        prerelease: false
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
 
-  publish:
-    needs: update-and-publish
-    if: needs.update-and-publish.outputs.changes == 'true'
-    permissions:
-      id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+      - name: Get dependencies
+        run: dart pub get
+
+      - name: Update TLDs
+        run: dart run scripts/update.dart
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [ -n "$(git status --porcelain lib/src/tlds.g.dart)" ]; then
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+            echo "TLDs have been updated"
+          else
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes in TLDs"
+          fi
+
+      - name: Bump version
+        if: steps.check_changes.outputs.changes == 'true'
+        id: bump_version
+        run: |
+          current_version=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          echo "Current version: $current_version"
+
+          IFS='.' read -ra VERSION_PARTS <<< "$current_version"
+          major=${VERSION_PARTS[0]}
+          minor=${VERSION_PARTS[1]}
+          patch=${VERSION_PARTS[2]}
+          new_patch=$((patch + 1))
+          new_version="$major.$minor.$new_patch"
+
+          echo "New version: $new_version"
+          echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+
+          sed -i "s/^version: .*/version: $new_version/" pubspec.yaml
+
+      - name: Update CHANGELOG
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          new_version=${{ steps.bump_version.outputs.new_version }}
+          current_date=$(date '+%Y-%m-%d')
+
+          # `tld-changes.md` is generated by scripts/update.dart and holds the
+          # added/removed TLD list (without the version header).
+          temp_file=$(mktemp)
+          {
+            echo "## [$new_version] - $current_date"
+            echo ""
+            cat tld-changes.md
+            echo ""
+            cat CHANGELOG.md
+          } > "$temp_file"
+          mv "$temp_file" CHANGELOG.md
+
+      - name: Run tests
+        if: steps.check_changes.outputs.changes == 'true'
+        run: dart test
+
+      - name: Commit, tag and push
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          new_version=${{ steps.bump_version.outputs.new_version }}
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add lib/src/tlds.g.dart pubspec.yaml CHANGELOG.md
+          git commit -m "chore: update TLDs list to v${new_version}"
+          git tag "v${new_version}"
+          git push origin HEAD:main
+          git push origin "v${new_version}"
+
+      - name: Create GitHub Release
+        if: steps.check_changes.outputs.changes == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.bump_version.outputs.new_version }}
+          name: Release v${{ steps.bump_version.outputs.new_version }}
+          body: |
+            ## Changes
+            - Updated TLDs list from ICANN
+
+            This release was automatically generated.
+          draft: false
+          prerelease: false
