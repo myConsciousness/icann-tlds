@@ -1,3 +1,12 @@
+## [1.1.3] - 2026-07-15
+
+### Added
+- `merck`
+
+### Removed
+- `goo`
+- `wolterskluwer`
+
 ## [1.1.2] - 2025-10-23
 
 - Updated TLDs list from ICANN
